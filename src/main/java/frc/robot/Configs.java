@@ -1,5 +1,11 @@
 package frc.robot;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -138,4 +144,36 @@ public final class Configs {
       intakeConfig.inverted(true).idleMode(IdleMode.kBrake).smartCurrentLimit(40);
     }
   }
+  
+public static RobotConfig getDefault() throws ParseException {
+    try {
+        return RobotConfig.fromGUISettings();
+    } catch (IOException e) {
+        // Log the error if needed
+        System.err.println("Failed to load RobotConfig from GUI settings, using fallback.");
+        e.printStackTrace();
+
+        // Fallback hardcoded config - customize if necessary
+        return new RobotConfig(
+            50.0, // massKG
+            5.0,  // MOI
+            new ModuleConfig(
+                0.0702,  // wheelRadiusMeters
+                4.8,     // maxDriveVelocityMPS
+                1.19,    // wheelCOF
+                edu.wpi.first.math.system.plant.DCMotor.getNEO(1).withReduction(6.75), // Example
+                50,      // driveCurrentLimit
+                1        // numMotors
+            ),
+            new edu.wpi.first.math.geometry.Translation2d[] {
+                new edu.wpi.first.math.geometry.Translation2d(0.27305, 0.27305),  // FL
+                new edu.wpi.first.math.geometry.Translation2d(0.27305, -0.27305), // FR
+                new edu.wpi.first.math.geometry.Translation2d(-0.27305, 0.27305), // BL
+                new edu.wpi.first.math.geometry.Translation2d(-0.27305, -0.27305) // BR
+            }
+        );
+    }
+}
+
+  
 }

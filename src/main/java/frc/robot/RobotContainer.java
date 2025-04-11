@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
@@ -127,7 +129,8 @@ public void robotPeriodic() {
     private void driveWithDPad(int dpad) {
         boolean reverseDirection = m_coralSubSystem.armCurrentTarget > 30;
     
-        double baseSpeed = dpadSlowMode ? 0.1 : 1;  // Adjust slow speed as needed
+        double baseSpeed = dpadSlowMode ? 0.15 * DriveConstants.kMaxSpeedMetersPerSecond : DriveConstants.kMaxSpeedMetersPerSecond;
+
     
         double xSpeed = 0;
         double ySpeed = 0;
@@ -155,19 +158,20 @@ public void robotPeriodic() {
             ySpeed = -ySpeed;
         }
     
-        m_robotDrive.drive(xSpeed, ySpeed, rotation, false);
+        m_robotDrive.drive(new ChassisSpeeds(xSpeed, ySpeed, rotation), false);
+
     }
     
 
 private void driveWithJoystick() {
-    // Logic for driving with joystick
-    double xSpeed = -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband);
-    double ySpeed = -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband);
-    double rotation = -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband);
+    double xSpeed = -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband) * DriveConstants.kMaxSpeedMetersPerSecond;
+double ySpeed = -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband) * DriveConstants.kMaxSpeedMetersPerSecond;
+double rotation = -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband) * DriveConstants.kMaxAngularSpeed;
 
-    // Call your robot drive method (ensure it's available for this use)
-    m_robotDrive.drive(xSpeed, ySpeed, rotation, true);  // Assuming this drives the robot field-centric
+
+    m_robotDrive.drive(new ChassisSpeeds(xSpeed, ySpeed, rotation), true);
 }
+
 
 
 
